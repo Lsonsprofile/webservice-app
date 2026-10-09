@@ -3,22 +3,6 @@ import { Button } from "@/components/ui/button";
 import { GraduationCap, ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
 
-function getOAuthUrl() {
-  const kimiAuthUrl = import.meta.env.VITE_KIMI_AUTH_URL;
-  const appID = import.meta.env.VITE_APP_ID;
-  const redirectUri = `${window.location.origin}/api/oauth/callback`;
-  const state = btoa(redirectUri);
-
-  const url = new URL(`${kimiAuthUrl}/api/oauth/authorize`);
-  url.searchParams.set("client_id", appID);
-  url.searchParams.set("redirect_uri", redirectUri);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "profile");
-  url.searchParams.set("state", state);
-
-  return url.toString();
-}
-
 export default function Login() {
   return (
     <div className="hero-glow bg-grid-pattern flex min-h-screen items-center justify-center p-4">
@@ -32,8 +16,7 @@ export default function Login() {
               Web Services Academy
             </CardTitle>
             <p className="text-sm text-slate-400">
-              Sign in to save your progress, quiz scores, and learning path
-              across devices.
+              Sign in with Google to access your learner profile.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -41,18 +24,27 @@ export default function Login() {
               className="min-h-12 w-full text-base"
               size="lg"
               onClick={() => {
-                window.location.href = getOAuthUrl();
+                window.location.href = "/api/auth/google/start";
               }}
             >
-              Sign in with Kimi
+              Continue with Google
             </Button>
             <p className="text-center text-xs text-slate-500">
-              You can also explore the whole course without an account —
-              progress then stays in this browser session only.
+              Your Google profile is used to sign you in. Learning progress is
+              temporary until database storage is added.
             </p>
+            {new URLSearchParams(window.location.search).has("error") && (
+              <p className="text-center text-xs text-amber-300" role="status">
+                Google sign-in did not complete. Please try again.
+              </p>
+            )}
           </CardContent>
         </Card>
-        <Button asChild variant="ghost" className="min-h-11 w-full text-slate-300 hover:text-white">
+        <Button
+          asChild
+          variant="ghost"
+          className="min-h-11 w-full text-slate-300 hover:text-white"
+        >
           <Link to="/">
             <ArrowLeft className="h-4 w-4" aria-hidden /> Back to the course
           </Link>

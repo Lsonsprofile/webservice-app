@@ -1,21 +1,17 @@
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import type { User } from "@db/schema";
-import { authenticateRequest } from "./kimi/auth";
+import type { AuthenticatedUser } from "./lib/session";
+import { authenticateRequest } from "./google-auth";
 
 export type TrpcContext = {
   req: Request;
   resHeaders: Headers;
-  user?: User;
+  user?: AuthenticatedUser;
 };
 
 export async function createContext(
-  opts: FetchCreateContextFnOptions,
+  opts: FetchCreateContextFnOptions
 ): Promise<TrpcContext> {
   const ctx: TrpcContext = { req: opts.req, resHeaders: opts.resHeaders };
-  try {
-    ctx.user = await authenticateRequest(opts.req.headers);
-  } catch {
-    // Authentication is optional here
-  }
+  ctx.user = (await authenticateRequest(opts.req.headers)) ?? undefined;
   return ctx;
 }
